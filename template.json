@@ -1,84 +1,42 @@
 {
-    "templateId": "starter-template",
-    "organizationId": "dsw",
-    "version": "0.1.0",
-    "name": "Starter Template",
-    "description": "Document Template for starting other templates",
-    "license": "Apache-2.0",
-    "metamodelVersion": 11,
-    "allowedPackages": [
-        {
-            "orgId": null,
-            "kmId": null,
-            "minVersion": null,
-            "maxVersion": null
-        }
-    ],
-    "formats": [
-        {
-            "uuid": "4e83a069-3146-4ebc-94bd-7627e524e2ba",
-            "name": "HTML",
-            "icon": "fas fa-file",
-            "steps": [
-                {
-                    "name": "jinja",
-                    "options": {
-                        "template": "src/template.html.j2",
-                        "content-type": "text/html",
-                        "extension": "html"
-                    }
-                }
-            ]
-        },
-        {
-            "uuid": "c1b2be65-b9b7-403d-9868-141f6c1e9105",
-            "name": "PDF",
-            "icon": "fas fa-file",
-            "steps": [
-                {
-                    "name": "jinja",
-                    "options": {
-                        "template": "src/template.html.j2",
-                        "content-type": "text/html",
-                        "extension": "html"
-                    }
-                },
-                {
-                    "name": "weasyprint",
-                    "options": {}
-                }
-            ]
-        },
-        {
-            "uuid": "157e8f00-9bf6-47bf-8610-7b7fffb59764",
-            "name": "MS Word",
-            "icon": "fas fa-file",
-            "steps": [
-                {
-                    "name": "jinja",
-                    "options": {
-                        "template": "src/template-word.html.j2",
-                        "content-type": "text/html",
-                        "extension": "html"
-                    }
-                }, 
-                {
-                    "name" : "pandoc",
-                    "options" : {
-                        "from" : "html",
-                        "to" : "docx",
-                        "args": "--reference-doc=src/word/reference.docx"
-                    }
-                }
-            ]
-        }
-    ],
-    "_tdk": {
-        "version": "3.27.0",
-        "readmeFile": "README.md",
-        "files": [
-            "src/**/*",
-            "LICENSE"
-        ]
+  "templateId": "biohack23-bielefeld-template-1",
+  "organizationId": "bhg23",
+  "version": "0.1.0",
+  "name": "Biohack Bielefeld 23 Template 1",
+  "description": "Template for annotation listing",
+  "license": "Apache-2.0",
+  "metamodelVersion": 12,
+  "allowedPackages": [
+    {
+      "orgId": null,
+      "kmId": null,
+      "minVersion": null,
+      "maxVersion": null
     }
+  ],
+  "formats": [
+    {
+      "uuid": "2dd011b6-afe8-4db9-8432-21f20a9ed723",
+      "name": "HTML Document, questions with replies only",
+      "icon": "fas fa-file",
+      "steps": [
+        {
+          "name": "jinja",
+          "options": {
+            "template": "src/default_only_Q_with_replies.html.j2",
+            "content-type": "text/html",
+            "extension": "html"
+          }
+        }
+      ]
+    }
+  ],
+  "_tdk": {
+    "version": "4.1.0",
+    "readmeFile": "README.md",
+    "files": [
+      "src/**/*",
+      "LICENSE"
+    ]
+  }
 }

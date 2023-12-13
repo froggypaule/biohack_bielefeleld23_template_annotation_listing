@@ -1,12 +1,10 @@
-# Starter Template
-
-*Document Template for starting other templates*
+# Biohack Bielefeld 23 Template 1
 
 ## Changelog
 
 ### 0.1.0
 
-- Initial version of Starter Template template
+- Initial version 
 
 ## License
 

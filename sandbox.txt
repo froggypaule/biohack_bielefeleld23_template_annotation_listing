@@ -1,0 +1,70 @@
+8e43a81e-27c5-4f84-96b4-f1771f985d3f --> from the project (project UUID)
+
+
+https://bhg23.ds-wizard.org/wizard/wizard/projects/
+
+
+
+    {{ renderQuestion(question, parent, reply) }}    
+
+
+
+
+Knowledge Model
+rdfType (optional)
+
+Chapter
+rdfType (optional) - if removing the chapter title loose the information
+rdfProperty (optional) - if chapter and knowledge model is annotated
+
+Question
+List of Items
+rdfType - type of the item
+rdfProperty (optional) - if you need to link it to parent (KM, Chapter, List of Items Question)
+
+Options
+rdfProperty - relation to the parent
+
+Answer
+rdfValue - literal / url to an ontology term
+
+Multichoice
+rdfProperty - relation to the parent
+
+Choices
+rdfValue - literal / url to an ontology term
+
+Value
+rdfProperty - relation to the parent
+RDF: the reply from the filled questionnaire is literal by default
+Later, we can use Value Type to use it as a type of the literal
+
+Integration
+rdfProperty - relation to the parent
+RDF: Just use the filled questionnaire reply as a literal
+Later, we can think about how to use the integration value
+
+
+
+
+
+
+
+    {%- if key == "rdfType" -%}
+      {%- if item_parent -%}
+        {%- set local_ns.parent = item_parent -%}
+      {%- else -%}
+        {%- set local_ns.parent = entity.uuid  -%}
+      {%- endif -%}
+      {{ "<" ~ qt_url ~ ">/" ~ "<" ~ value ~ ">" ~ local_ns.parent }}
+      {{ key }}
+      {{ "<" ~ value ~ ">" }}
+      {{ value }}
+    {%- else -%}
+      {{ "<" ~ qt_url ~ ">/" ~ "<" ~ value ~ ">" ~ local_ns.parent }}
+      {{ "<" ~ value ~ ">" ~ reply }}
+    {%- endif -%}
+  {%- endfor -%}
+ {%- for key, value in entity.annotations -%}
+    {{ key ~ " " ~ value }}
+  {%- endfor -%}

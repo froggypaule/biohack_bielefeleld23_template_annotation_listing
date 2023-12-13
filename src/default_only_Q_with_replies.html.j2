@@ -1,0 +1,211 @@
+
+
+
+{#- ----------------------------------------------------------------------- -#}
+{#-  GLOBAL VARIABLES                                                       -#}
+{#- ----------------------------------------------------------------------- -#}
+{#- to see the latest document context:                                     -#}
+{#-   https://guide.ds-wizard.org/en/latest/_images/document-context.svg    -#}
+{#-                                                                         -#}
+{#-  the document context giving access to all DSW entities                 -#}
+{%- set dc = ctx|to_context_obj -%}
+{%- set qt_uuid = dc.questionnaire.uuid  -%}
+{%- set qt_url = qt_uuid  -%}
+
+{#- ----------------------------------------------------------------------- -#}
+{#-  end of GLOBAL VARIABLES                                                -#}
+{#- ----------------------------------------------------------------------- -#}
+
+{#- ------------------------------------------------------------  -#}
+{#- globals to THIS file, which we call locals... -#}
+{#- ------------------------------------------------------------  -#}
+{#- variables global to this file, not meant to be used by the caller  -#}
+
+{%- set local_ns = namespace(description="in main") -%}
+{%- set local_ns.parent = none  -%}
+
+{#- ----------------------------------------------------------------------- -#}
+{#-  Annotation MACROS                                                        -#}
+{#- ----------------------------------------------------------------------- -#}
+
+
+
+
+{%- macro extractLastTerm(path)  -%}
+  {%- set list = path.split('/') -%}
+  {{ list|last }}
+{%- endmacro -%}
+
+{%- macro outputRDFlinks(rdf_object) -%}
+  {%- set rdf_link = "http://www.w3.org/1999/02/22-rdf-syntax-ns#" -%}
+  {%- if rdf_object == "rdfType"  -%}
+    {{ rdf_link ~ "type" }}
+  {%- elif rdf_object == "rdfProperty"  -%}
+    {{ rdf_link ~ "Property" }}
+  {%- elif rdf_object == "rdfValue"  -%}
+    {{ rdf_link ~ "value" }}
+  {%- else -%}
+    {{ rdf_link ~ "don't know" }}
+  {%- endif -%}
+{%- endmacro -%}
+
+
+{#- keep im mind https://www.w3.org/TR/2004/REC-rdf-mt-20040210/#InterpVocab -#}
+{%- macro processAnnotations(entity, item_parent, reply) -%}
+  {%- for key, value in entity.annotations.items() -%}
+    {{ "debugging: * " ~ key ~ ":--" ~ value ~ " *<br>" }} 
+
+    {%- if key == "rdfType" -%}
+      {%- if item_parent -%}
+        {%- set local_ns.parent = item_parent -%}
+      {%- else -%}
+        {%- set local_ns.parent = entity.uuid  -%}
+      {%- endif -%}
+      {{ "< " ~ qt_url ~ "/" ~  extractLastTerm(value) ~ " >" ~ local_ns.parent ~ "<br>" }}
+      {{  outputRDFlinks(key) ~ "<br>" }}
+      {{ value  ~ "<br>" }}
+    {%- else -%}
+      {{ "<" ~ qt_url ~ "/>"  ~ local_ns.parent ~ "<br>" }}
+      {{ "< " ~ value ~ " >" ~ reply  ~ "<br>" }}
+    {%- endif -%}
+  {%- endfor -%}
+{%- endmacro -%}
+
+
+
+
+{#- ----------------------------------------------------------------------- -#}
+{#-  ANSWERS MACROS                                                         -#}
+{#- ----------------------------------------------------------------------- -#}
+
+
+
+{%- macro renderAnswerValue(question, reply, path) -%}
+  {%- if reply is of_type("StringReply") -%}
+    {%- set answer = reply.value -%}
+  {%- else -%}
+    {%- set answer = reply.value|markdown  -%}
+    {%- if reply.is_integration -%}
+      {#- Integration -#}
+      {%- set integration = question.integration -%}
+      {%- set answer = integration.item(reply.item_id) -%}
+    {%- endif -%}
+  {%- endif -%}
+  
+  {{ processAnnotations(question, none, answer) }}
+{%- endmacro -%}
+
+
+
+
+
+{%- macro renderAnswerOption(question, reply, path) -%}
+  {%- set answer = reply.answer -%}
+  {%- set path = path ~ '.' ~ answer.uuid -%}
+  
+  {{ processAnnotations(answer, none, answer.label) }}
+
+  {%- for question in answer.followups -%}
+    {{ renderQuestion(question, path) }}
+  {%- endfor -%}
+{%- endmacro -%}
+
+
+
+
+{%- macro renderChoiceList(question, reply, path) -%}
+  
+  {%- for choice in question.choices -%}
+    {%- if choice in reply.choices -%}
+      {{ processAnnotations(choice, none, choice.label) }}
+    {%- endif -%}
+  {%- endfor -%}
+{%- endmacro -%}
+
+
+
+{%- macro renderAnswerList(question, reply, path) -%}
+
+  {%- set itemPathPrefix = path ~ '.' -%}
+  {%- for item_uuid in reply.items -%}
+
+    {%- set reply_to_item = none -%}
+    {{ processAnnotations(question, item_uuid, reply_to_item) }}
+
+    {%- set itemPath = itemPathPrefix ~ item_uuid -%}
+    {%- for question in question.followups -%}           
+      {{ renderQuestion(question, itemPath) }}        
+    {%- endfor -%}
+
+  {%- endfor -%}
+{%- endmacro -%}
+
+
+
+{#- ----------------------------------------------------------------------- -#}
+{#-  QUESTION MACROS                                                        -#}
+{#- ----------------------------------------------------------------------- -#}
+{%- macro renderQuestionReply(question, path) -%}    
+  {%- set reply = question.replies.get(path) -%}    
+  {%- if reply and reply.value -%}
+    {#- process all questions as long as they have answers -#}
+
+    {%- if question is of_type('ValueQuestion') and reply is of_type('StringReply') -%}
+      {{ renderAnswerValue(question, reply, path) }}        
+    {%- elif question is of_type('OptionsQuestion') and reply is of_type('AnswerReply') -%}
+      {{ renderAnswerOption(question, reply, path) }}        
+    {%- elif question is of_type('ListQuestion') and reply is of_type('ItemListReply') -%}
+      {{ renderAnswerList(question, reply, path) }}        
+    {%- elif question is of_type('IntegrationQuestion') and reply is of_type('IntegrationReply') -%}
+      {{ renderAnswerValue(question, reply, path) }}       
+    {%- elif question is of_type('MultiChoiceQuestion') and reply is of_type('MultiChoiceReply') -%}
+      {{ renderChoiceList(question, reply, path) }}
+    {%- endif -%}
+  {%- endif -%}
+{%- endmacro -%}
+
+{%- macro renderQuestion(question, path) -%}
+  {%- set path = path ~ '.' ~ question.uuid -%}    
+  {{ renderQuestionReply(question, path) }}
+{%- endmacro -%}
+
+
+
+
+{#- ----------------------------------------------------------------------- -#}
+{#-  CHAPTER MACROS                                                         -#}
+{#- ----------------------------------------------------------------------- -#}
+{%- macro renderChapter(chapter) -%}
+
+  {%- set item_uuid = none -%}
+  {%- set reply = none -%}
+  {{ processAnnotations(chapter, item_uuid, reply) }}
+
+  {%- for question in chapter.questions -%}        
+   {{ renderQuestion(question, chapter.uuid) }}    
+  {%- endfor -%}
+{%- endmacro -%}
+
+{#- ----------------------------------------------------------------------- -#}
+{%- macro render() -%}
+  {%- for chapter in dc.km.chapters -%}    
+    {{ renderChapter(chapter) }}
+  {%- endfor -%}
+{%- endmacro -%}
+
+{#- ----------------------------------------------------------------------- -#}
+
+
+
+<html>
+  <head>
+    <title>IFB Insight annotations (questions with replies): {{dc.qtn.name}}</title>
+    <meta charset="utf-8">
+    <style>{% include "src/default.css" %}</style>
+  </head>
+  <body>
+    <article class="dmp">
+      {{ render() }}
+    </article>
+  </body>
+</html>
