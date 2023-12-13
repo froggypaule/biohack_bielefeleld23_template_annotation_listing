@@ -63,10 +63,10 @@
       {%- endif -%}
       {{ "&lt" ~ ctx.config.clientUrl ~ "/projects/" ~ qt_url ~ extractLastTerm(value) ~ "_" ~ local_ns.parent ~ "&gt"}}
       {{ "&lt" ~ outputRDFlinks(key) ~ "&gt" }}
-      {{ "&lt" ~ value  ~ '&gt<br>' }}
+      {{ "&lt" ~ value  ~ '&gt .<br>' }}
     {%- else -%}
       {{ "&lt" ~ ctx.config.clientUrl ~ "/projects/" ~ qt_url ~ extractLastTerm(value) ~ "_"  ~ local_ns.parent ~ "&gt" }}
-      {{ '&lt' ~ value ~ '&gt "' ~ reply  ~ '"<br>' }}
+      {{ '&lt' ~ value ~ '&gt "' ~ reply  ~ '" .<br>' }}
     {%- endif -%}
   {%- endfor -%}
 {%- endmacro -%}
