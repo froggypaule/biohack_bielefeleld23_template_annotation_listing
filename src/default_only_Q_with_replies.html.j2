@@ -61,12 +61,12 @@
       {%- else -%}
         {%- set local_ns.parent = entity.uuid  -%}
       {%- endif -%}
-      {{ "< " ~ qt_url ~ "/" ~  extractLastTerm(value) ~ " >" ~ local_ns.parent ~ "<br>" }}
-      {{  outputRDFlinks(key) ~ "<br>" }}
-      {{ value  ~ "<br>" }}
+      {{ "&lt" ~ ctx.config.clientUrl ~ "/projects/" ~ qt_url ~ extractLastTerm(value) ~ "_" ~ local_ns.parent ~ "&gt"}}
+      {{ "&lt" ~ outputRDFlinks(key) ~ "&gt" }}
+      {{ "&lt" ~ value  ~ '&gt .<br>' }}
     {%- else -%}
-      {{ "<" ~ qt_url ~ "/>"  ~ local_ns.parent ~ "<br>" }}
-      {{ "< " ~ value ~ " >" ~ reply  ~ "<br>" }}
+      {{ "&lt" ~ ctx.config.clientUrl ~ "/projects/" ~ qt_url ~ extractLastTerm(value) ~ "_"  ~ local_ns.parent ~ "&gt" }}
+      {{ '&lt' ~ value ~ '&gt "' ~ reply  ~ '" .<br>' }}
     {%- endif -%}
   {%- endfor -%}
 {%- endmacro -%}
