@@ -53,7 +53,7 @@
 {#- keep im mind https://www.w3.org/TR/2004/REC-rdf-mt-20040210/#InterpVocab -#}
 {%- macro processAnnotations(entity, item_parent, reply) -%}
   {%- for key, value in entity.annotations.items() -%}
-    {{ "debugging: * " ~ key ~ ":--" ~ value ~ " *<br>" }} 
+ {#-   {{ "debugging: * " ~ key ~ ":--" ~ value ~ " *<br><br>" }} -#}
 
     {%- if key == "rdfType" -%}
       {%- if item_parent -%}
@@ -61,7 +61,7 @@
       {%- else -%}
         {%- set local_ns.parent = entity.uuid  -%}
       {%- endif -%}
-      {{ "&lt" ~ ctx.config.clientUrl ~ "/projects/" ~ qt_url ~ extractLastTerm(value) ~ "_" ~ local_ns.parent ~ "&gt"}}
+      {{ "&lt" ~ ctx.config.clientUrl ~ "/projects/" ~ qt_url ~ extractLastTerm(value) ~ "_" ~ local_ns.parent ~ "&gt" }}
       {{ "&lt" ~ outputRDFlinks(key) ~ "&gt" }}
       {{ "&lt" ~ value  ~ '&gt .<br>' }}
     {%- else -%}
